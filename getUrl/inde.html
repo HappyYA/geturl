@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>获取视频URL</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!-- <script src="js/index.js"></script> -->
+</head>
+<body>
+<div class="container header">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6 text-center headerTitle">获取视频连接（目前只支持爱奇艺视频）</div>
+        <div class="col-md-3"></div>
+    </div>
+    <div class="row urlAddress">
+        <div class="col-lg-12">
+            <div class="input-group">
+                <input id="urlText" type="text" class="form-control" id="exampleInputAmount" placeholder="请输入视频的URL">
+                <div id="sub" class="search input-group-addon button btn-success">获取</div>
+                <div id="sub1" class="search input-group-addon button btn-success">播放</div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div id="showResult" class="showResult">
+                <div id="filmTitle" class="film_title"></div>
+                <ul id="filmList" class="list-inline film-list-item">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div id="filmNum" class="film_num"></div>
+            <iframe id="playFram" name="play" width="100%" height="500px;" src="" frameborder="0"></iframe>
+        </div>
+    </div>
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script>
+    $('#sub').click(function(){
+        $("#filmTitle").text('正在加载请稍等');
+        var url = $('#urlText').val();
+        $.ajax({
+            url:'http://172.16.0.64:3000',
+            type:'POST',
+            data:{
+                url:url
+            },
+            success:function(data){
+                console.log(data);
+                var title = data.filmTitle;
+                var urlList = data.urlList;
+                var _html ='';
+                $.each(urlList,function(index,item){
+                    var itemArr = item.split('$');
+                    _html+='<li id="" class="btn btn-success">\
+                                <a href="https://api.daidaitv.com/index/?url='+itemArr[1]+'" target="play">'+itemArr[0]+'</a>\
+                            </li>';
+                })
+                $("#filmTitle").text(title);
+                $('#filmList').html(_html);
+                play();
+                // https://api.daidaitv.com/index/?url=http://www.iqiyi.com/v_19rraybix0.html
+
+            },
+            error:function(error){
+                console.log(error);
+            }
+        })
+    });
+    function play(){
+        $('#filmList li').click(function(){
+            var titleText = $(this).text();
+            $('#filmList li').removeClass('on');
+            $(this).addClass('on');
+            $('#filmNum').text('当前播放时是'+titleText);
+        })
+    }
+    $('#sub1').click(function(){
+        var url = $('#urlText').val();
+        $("#playFram").attr('src','https://api.daidaitv.com/index/?url='+url);
+    })
+
+</script>
+</body>
+</html>
